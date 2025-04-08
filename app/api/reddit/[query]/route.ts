@@ -13,10 +13,16 @@ interface RedditAPIResponse {
         children: { data: RedditPost }[];
     };
 }
+interface Props{
+    params: {
+        query: string;
+    };
+}
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { query: string } }
+    // { params }: { params: { query: string } }
+    { params }: Props
 ) {
     const { query } = params;
     console.log("Reddit API received query:", query);
