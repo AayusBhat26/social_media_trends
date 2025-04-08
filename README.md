@@ -23,7 +23,7 @@ A powerful analytics platform for tracking and visualizing social media trends i
   Get notified about emerging trends through webhooks
 
 ## Tech Stack 🛠️
-- **Frontend**: Next.js 13 (App Router), React 18
+- **Frontend**: Next.js 15 (App Router), React 18
 - **Backend**: Next.js API Routes
 - **Database**: PostgreSQL with Prisma ORM
 - **Visualization**: D3.js + Chart.js
