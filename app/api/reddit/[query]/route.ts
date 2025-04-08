@@ -23,7 +23,7 @@ export async function GET(
                 limit: 5,
             },
             headers: {
-                'User-Agent': '',
+                'User-Agent': 'Fueler Social Trend App',
             },
         });
 
