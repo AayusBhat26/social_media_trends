@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 export async function GET(
     request: NextRequest,
@@ -28,6 +28,7 @@ export async function GET(
         });
 
         console.log("Full Reddit response:", response.data);
+
         const children = response.data?.data?.children;
 
         if (!Array.isArray(children)) {
@@ -52,12 +53,22 @@ export async function GET(
         });
 
         return NextResponse.json({ items }, {
-            headers:{
-                'Access-Control-Allow-Origin': '*',
+            headers: {
+                'Access-Control-Allow-Origin': '*', // Add CORS header
             }
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching Reddit data:', error);
-        return NextResponse.json({ error: 'Failed to fetch Reddit data' }, { status: 500 });
+
+        if (axios.isAxiosError(error)) {
+            const axiosError = error as AxiosError;
+            console.error('Reddit API error response:', axiosError.response?.data);
+            console.error('Reddit API error status:', axiosError.response?.status);
+            return NextResponse.json({ error: `Failed to fetch Reddit data: ${axiosError.message}` }, { status: 500 });
+        } else {
+            // Handle non-Axios errors
+            console.error('Non-Axios error:', error);
+            return NextResponse.json({ error: 'Failed to fetch Reddit data due to an unexpected error' }, { status: 500 });
+        }
     }
 }
