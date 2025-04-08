@@ -31,7 +31,7 @@ export async function GET(
         );
 
         return NextResponse.json(response.data);
-    } catch (_error) {
+    } catch {
         return NextResponse.json({ error: 'Failed to fetch YouTube data' }, { status: 500 });
     }
 }
