@@ -1,25 +1,9 @@
-// File: route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-interface Params {
-    params: {
-        query: string;
-    };
-}
-
-interface RedditChild {
-    data: {
-        title: string;
-        selftext?: string;
-        thumbnail?: string;
-        [key: string]: unknown;
-    };
-}
-
 export async function GET(
     request: NextRequest,
-    { params }: Params
+    { params }: { params: { query: string } }
 ) {
     const { query } = params;
     console.log("Reddit API received query:", query);
@@ -54,7 +38,7 @@ export async function GET(
             console.warn("Empty Reddit posts array for query:", query);
         }
 
-        const items = children.map((child: RedditChild) => {
+        const items = children.map((child: { data: { title: string; selftext?: string; thumbnail?: string; [key: string]: unknown } }) => {
             const post = child.data;
             return {
                 title: post.title || "No title",
