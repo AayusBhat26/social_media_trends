@@ -31,10 +31,6 @@ A powerful analytics platform for tracking and visualizing social media trends i
 
 ## Getting Started 🚀
 
-### Prerequisites
-- Node.js 18+
-- PostgreSQL 14+
-- PNPM 8+
 
 ### Installation
 1. Clone the repository:
