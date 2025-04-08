@@ -1,10 +1,8 @@
-// File: route.ts
-// filepath: d:\assignments_internship\fueler\app\api\reddit\[query]\route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
 export async function GET(
-    // request: NextRequest,
+    request: NextRequest,
     { params }: { params: { query: string } }
 ) {
     const { query } = params;
