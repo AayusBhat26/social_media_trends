@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
+interface RedditPost {
+    title: string;
+    selftext?: string;
+    thumbnail?: string;
+    url?: string;
+}
+
+interface RedditAPIResponse {
+    data: {
+        children: { data: RedditPost }[];
+    };
+}
+
+// Use the proper context type for dynamic route params
 export async function GET(
     request: NextRequest,
-    { params }: { params: { query: string } }
+    context: { params: { query: string } }
 ) {
-    const { query } = params;
+    const { query } = context.params;
     console.log("Reddit API received query:", query);
 
     if (!query) {
@@ -16,7 +30,7 @@ export async function GET(
     }
 
     try {
-        const response = await axios.get('https://www.reddit.com/search.json', {
+        const response = await axios.get<RedditAPIResponse>('https://www.reddit.com/search.json', {
             params: {
                 q: query,
                 sort: 'relevance',
@@ -27,22 +41,24 @@ export async function GET(
             },
         });
 
-        console.log("Full Reddit response:", response.data);
-        const children = response.data?.data?.children;
+        const redditData = response.data;
+        console.log("Full Reddit response:", redditData);
+        const children = redditData?.data?.children;
 
         if (!Array.isArray(children)) {
-            console.error("Unexpected Reddit response structure for query:", query, response.data);
+            console.error("Unexpected Reddit response structure for query:", query, redditData);
             return NextResponse.json({ error: 'Unexpected response structure from Reddit' }, { status: 500 });
         }
+
         if (children.length === 0) {
             console.warn("Empty Reddit posts array for query:", query);
         }
 
-        const items = children.map((child: { data: { title: string; selftext?: string; thumbnail?: string; [key: string]: unknown } }) => {
+        const items: RedditPost[] = children.map((child) => {
             const post = child.data;
             return {
                 title: post.title || "No title",
-                description: post.selftext || "",
+                selftext: post.selftext || "",
                 thumbnail:
                     post.thumbnail && typeof post.thumbnail === 'string' && post.thumbnail.startsWith('http')
                         ? post.thumbnail
@@ -53,7 +69,13 @@ export async function GET(
 
         return NextResponse.json({ items });
     } catch (error) {
-        console.error('Error fetching Reddit data:', error);
-        return NextResponse.json({ error: 'Failed to fetch Reddit data' }, { status: 500 });
+        if (axios.isAxiosError(error)) {
+            const axiosError = error as AxiosError;
+            console.error('Error fetching Reddit data:', axiosError.message, axiosError.response?.status, axiosError.response?.data);
+            return NextResponse.json({ error: `Failed to fetch Reddit data: ${axiosError.message}` }, { status: 500 });
+        } else {
+            console.error('Error fetching Reddit data:', error);
+            return NextResponse.json({ error: 'Failed to fetch Reddit data' }, { status: 500 });
+        }
     }
 }

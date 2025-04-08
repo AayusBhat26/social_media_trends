@@ -3,6 +3,7 @@ import { useState, FormEvent } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
+import Image from 'next/image'; // Import the Image component
 
 interface PlatformItem {
   title: string;
@@ -52,10 +53,16 @@ function renderPlatformData(
           className="rounded-lg bg-gray-800 p-4 shadow-lg hover:shadow-2xl transition"
         >
           {item.thumbnail && item.thumbnail !== "self" && (
-            <img
+            <Image
               src={item.thumbnail}
               alt={item.title}
+              width={600}  // Adjust as needed
+              height={300} // Adjust as needed
               className="mb-2 h-40 w-full object-cover rounded"
+              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                (e.target as HTMLImageElement).onerror = null; // prevents looping
+                (e.target as HTMLImageElement).src="/placeholder.png";
+              }}
             />
           )}
           <h3 className="mb-1 text-lg font-semibold text-white">
@@ -327,10 +334,16 @@ export default function Dashboard() {
                   className="rounded-lg bg-gray-700 p-4 shadow hover:shadow-xl transition"
                 >
                   {post.thumbnail && post.thumbnail !== "self" && (
-                    <img
+                    <Image
                       src={post.thumbnail}
                       alt={post.title}
+                      width={600}
+                      height={300}
                       className="mb-2 h-40 w-full object-cover rounded"
+                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                        (e.target as HTMLImageElement).onerror = null; // prevents looping
+                        (e.target as HTMLImageElement).src = "/placeholder.png";
+                      }}
                     />
                   )}
                   <h3 className="mb-1 text-lg font-semibold text-white">

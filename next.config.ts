@@ -1,7 +1,3 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    trace: false,
-  },
-}
+const nextConfig = {}
 module.exports = nextConfig
