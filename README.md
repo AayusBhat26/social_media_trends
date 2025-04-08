@@ -1,6 +1,4 @@
-Here's a comprehensive README.md template for the social media trends analyzer project:
 
-```markdown
 # Social Media Trends Analyzer 🌐📈
 
 [![Next.js](https://img.shields.io/badge/Next.js-13.4+-000000?logo=next.js)](https://nextjs.org/)
@@ -88,11 +86,10 @@ INSTAGRAM_ACCESS_TOKEN=your_ig_token
 ## License 📄
 This project is currently unlicensed. All rights reserved by the author. Contact repository owner for usage permissions.
 
----
 
 **Created with ❤️ by Aayush Bhat**  
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/aayush-kumar-bhat/)
-```
+
 
 Key features of this README:
 1. Added prominent demo video badge with LinkedIn branding
