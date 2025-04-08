@@ -14,12 +14,11 @@ interface RedditAPIResponse {
     };
 }
 
-// Use the proper context type for dynamic route params
 export async function GET(
     request: NextRequest,
-    context: { params: { query: string } }
+    { params }: { params: { query: string } }
 ) {
-    const { query } = context.params;
+    const { query } = params;
     console.log("Reddit API received query:", query);
 
     if (!query) {
