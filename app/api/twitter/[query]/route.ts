@@ -1,62 +1,61 @@
-// File: route.ts
-// filepath: d:\assignments_internship\fueler\app\api\twitter\[query]\route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
+import { NextResponse } from 'next/server';
+import axios, { AxiosError } from 'axios';
 
-interface Params {
-    params: {
-        query: string;
-    };
-}
-
-interface Tweet {
-    id: string;
+interface TwitterPost {
     text: string;
+    id_str: string;
 }
 
-export async function GET(
-    request: NextRequest,
-    { params }: Params
-) {
-    const { query } = params;
+interface TwitterAPIResponse {
+    statuses: TwitterPost[];
+}
+
+export const runtime = 'nodejs';
+
+export async function GET(context: { params: { query: string } }) {
+    const { query } = context.params;
+    console.log("Twitter API received query:", query);
 
     if (!query) {
-        return NextResponse.json(
-            { error: 'No query provided' },
-            { status: 400 }
-        );
+        return NextResponse.json({ error: 'No query provided' }, { status: 400 });
     }
 
-    console.log('Received query:', query, 'Bearer token:', process.env.TWITTER_BEARER_TOKEN);
-
     try {
-        const response = await axios.get('https://api.twitter.com/2/tweets/search/recent', {
+        const bearerToken = process.env.TWITTER_BEARER_TOKEN;
+        if (!bearerToken) {
+            console.error("Twitter Bearer Token is missing.");
+            return NextResponse.json({ error: 'Twitter API key is missing' }, { status: 500 });
+        }
+
+        const response = await axios.get<TwitterAPIResponse>('https://api.twitter.com/1.1/search/tweets.json', {
             params: {
-                query,
-                max_results: 11,
+                q: query,
+                count: 5,
             },
             headers: {
-                Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN?.trim()}`
+                'Authorization': `Bearer ${bearerToken}`,
             },
         });
 
-        const tweets = (response.data?.data as Tweet[]) || [];
-        const items = tweets.map((tweet: Tweet) => {
-            const text = tweet.text || "";
-            return {
-                title: text.length > 60 ? text.slice(0, 60) + "..." : text || "No title",
-                description: text,
-                thumbnail: "",
-                url: `https://twitter.com/i/web/status/${tweet.id}`,
-            };
-        });
+        const twitterData = response.data;
+        console.log("Full Twitter response:", twitterData);
+
+        const items = twitterData.statuses.map((status) => ({
+            text: status.text || "No text",
+            id_str: status.id_str || "",
+        }));
 
         return NextResponse.json({ items });
-    } catch (error: unknown) {
-        console.error('Twitter API Error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch Twitter data' },
-            { status: 500 }
-        );
+
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const axiosError = error as AxiosError;
+            const errorMessage = `Failed to fetch Twitter data: ${axiosError.message}, Status: ${axiosError.response?.status}`;
+            console.error('Error fetching Twitter data:', errorMessage, axiosError.response?.data);
+            return NextResponse.json({ error: errorMessage }, { status: 500 });
+        }
+
+        console.error('Error fetching Twitter data:', error);
+        return NextResponse.json({ error: 'Failed to fetch Twitter data' }, { status: 500 });
     }
 }
